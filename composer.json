@@ -1,0 +1,13 @@
+{
+    "name": "cmercado93/smsmasivos-api-client",
+    "description": "Libreria para el uso de la API de SmsMasivos Argentina",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Carlos Mercado",
+            "email": "cmercado93@outlook.com"
+        }
+    ],
+    "require": {}
+}
