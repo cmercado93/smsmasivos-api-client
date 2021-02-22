@@ -239,6 +239,12 @@ class SmsmasivosBlock {
      */
     public function parseApiResponse($response)
     {
-        return trim(strtoupper($response)) == 'OK';
+        if (trim(strtoupper($response)) == 'OK') {
+            return true;
+        }
+
+        $this->addError(-99, $response);
+
+        return false;
     }
 }
