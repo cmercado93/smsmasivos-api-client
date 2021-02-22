@@ -401,6 +401,12 @@ class SmsmasivosMessage {
     {
         $r = explode(';', $response, 2);
 
+        // valido si se respondio en el formato correcto
+        if (!is_numeric($r[0])) {
+            $this->setError(-99, $response);
+            return false;
+        }
+
         if ((int)$r[0] == 0 || (int)$r[0] == 1) {
             $this->markMessageAsSent();
             return true;
