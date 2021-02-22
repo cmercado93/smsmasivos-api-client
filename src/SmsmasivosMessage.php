@@ -272,7 +272,6 @@ class SmsmasivosMessage {
 
     public function markMessageAsSent()
     {
-        $this->setError(-99, $this->getPhoneNumber() . ': Este mensaje ya fue enviado');
         $this->sent = true;
     }
 
