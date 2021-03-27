@@ -2,6 +2,7 @@
 
 require_once dirname(__FILE__) . '/Classes/SmsmasivosSendMessage.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosSendMessagesInBlock.php';
+require_once dirname(__FILE__) . '/Classes/SmsmasivosCheckMessageBlockSent.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetBalance.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetCurrentDateServer.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetPackageExpiration.php';
@@ -42,15 +43,21 @@ class Smsmasivos
     }
 
     /**
-     * [checkStatusBlock description]
-     * @param  [type] $filter  [description]
-     * @param  [type] $value   [description]
-     * @param  array  $configs [description]
-     * @return [type]          [description]
+     * Compruebo el estado actual del bloque de mensajes enviados.
+     * @param  string $filter
+     * @param  string $value
+     * @param  array  $configs
+     * @return bool
      */
-    public static function checkStatusBlock($filter, $value, array $configs = array())
+    public static function checkMessageBlockSent($value, $filter = 'internal_id', array $configs = array())
     {
-        return false;
+        $i = new SmsmasivosCheckMessageBlockSent();
+
+        $i->setFilter($filter, $value);
+
+        $i->setConfigs($configs);
+
+        return $i->check();
     }
 
     /**
