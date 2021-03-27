@@ -66,7 +66,7 @@ try {
 ```
 
 ### Envío de mensajes en bloque:
-Esta función te permite enviar múltiples SMS's en una sola peticion.
+Esta función te permite enviar múltiples SMS en una sola peticion.
 
 ```php
 <?php
