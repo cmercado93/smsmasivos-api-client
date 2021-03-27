@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__FILE__) . '/Exceptions/SmsmasivosCredentialsException.php';
+
 class SmsmasivosCredentials
 {
     /**
@@ -16,8 +18,8 @@ class SmsmasivosCredentials
 
     public static function setUserAndPassword($user, $password)
     {
-        self::$user = $user;
-        self::$password = $password;
+        self::$user = trim($user);
+        self::$password = trim($password);
     }
 
     /**
@@ -26,7 +28,7 @@ class SmsmasivosCredentials
      */
     public static function getUserAndPassword()
     {
-        if (!self::$user) {
+        if (!self::$user || !self::$password) {
             return false;
         }
 
@@ -38,10 +40,17 @@ class SmsmasivosCredentials
 
     /**
      * Retorno si existe o no credenciales
+     * @param  boolean $throw Si se envía este parámetro se enviara una excepción.
      * @return boolean
      */
-    public static function existsCredentials()
+    public static function existsCredentials($throw = false)
     {
-        return (bool) self::getUserAndPassword();
+        $b = (bool) self::getUserAndPassword();
+
+        if (!$b && $throw) {
+            throw new SmsmasivosCredentialsException();
+        }
+
+        return $b;
     }
 }

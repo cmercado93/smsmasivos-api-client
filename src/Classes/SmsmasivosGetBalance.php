@@ -41,6 +41,6 @@ class SmsmasivosGetBalance
             return (int) $response;
         }
 
-        return false;
+        return -1;
     }
 }

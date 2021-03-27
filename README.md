@@ -1,8 +1,8 @@
 # smsmasivos-api-client
 
-Librería para el uso de la API de SmsMasivos Argentina
+Librería para el uso de la API de SMS masivos Argentina
 
-Esta librería cuenta con el funcionamiento básico de la API de acuerdo con la documentación de [Sms Masivos](https://smsmasivos.com.ar).
+Esta librería cuenta con el funcionamiento básico de la API de acuerdo con la documentación de [SMS masivos](https://smsmasivos.com.ar).
 
 ## Funciones de la libreria:
 
@@ -10,6 +10,7 @@ __*Funciones que requieren autenticación.*__
 - Envío de SMS en tiempo real.
 - Envío de SMS en bloque.
 - Comprobación de mensajes enviados mediante bloque.
+- Recepción de mensajes.
 - Consulta de saldo (Cuentas prepago).
 - Consulta de vencimiento del paquete contratado (Cuentas prepago).
 - Consulta de cantidad de mensajes enviados en el mes.
@@ -17,13 +18,13 @@ __*Funciones que requieren autenticación.*__
 __*Funciones que no requieren autenticación.*__
 - Consulta de la hora del servidor.
 
-# Requerimientos
+## Requerimientos
 - [PHP 5.2 o mayor](https://www.php.net/)
 
-# Ejemplos
+## Ejemplos
 
 ### Registro de credenciales:
-Antes de comenzar a utilizar las funciones principales del paquete se tienen que registrar las credenciales que Sms Masivos les proporciona. Para realizar esto tiene que llamar a la clase *"SmsmasivosCredentials"* y luego al método estático *"setUserAndPassword"* como se muestra a continuación.
+Antes de comenzar a utilizar las funciones principales del paquete se tienen que registrar las credenciales que SMS masivos les proporciona. Para realizar esto tiene que llamar a la clase *"SmsmasivosCredentials"* y luego al método estático *"setUserAndPassword"* como se muestra a continuación.
 
 ```php
 <?php
@@ -34,112 +35,189 @@ SmsmasivosCredentials::setUserAndPassword("DEMO500", "DEMO500");
 
 ```
 
-## Envió de SMS en tiempo real:
+### Envió de SMS en tiempo real:
 Esta función te permite enviar SMS en tiempo real.
 
 ```php
 <?php
 
 require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosMessage.php';
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
 
-SmsmasivosCredentials::setUserAndPassword("DEMO500", "DEMO500");
+try {
+    // Ingresamos los datos de autenticación.
+    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
 
-$newMessage = new SmsmasivosMessage();
+    // Enviamos un nuevo mensaje.
+    Smsmasivos::sendMessage('1234567890', 'Mensaje a enviar', array(
+        'test' => true,
+        'internal_id' => 'Ab123',
+        'send_date' => new DateTime('NOW'),
+        'html' => '<p>Texto en <b>HTML</b></p>'
+    ));
+} catch (Exception $e) {
+    echo 'code: ' . $e->getCode() . PHP_EOL;
+    echo 'msg: ' . $e->getMessage() . PHP_EOL;
 
-// Ingreso el numero de teléfono al que enviare el mensaje
-$newMessage->setPhoneNumber('1122223344');
-
-// Ingreso el mensaje que enviare
-$newMessage->setMessage('Mensaje a enviar');
-
-// Marco este mensaje como una prueba para que SmsMasivos no lo envíe
-$newMessage->isTest();
-
-// Ingreso un ID con el que podre identificarlo desde mi sistema
-$newMessage->setInternalId("ABC123");
-
-// Genero una fecha en la cual quiero que el mensaje sea enviado desde Sms Masivos
-$date = new DateTime("2020-01-12 13:12:00");
-$newMessage->setSendDate($date);
-
-// Genero texto en HTML que SmsMasivos utilizara para generar una pagina dinámica con esto
-// Solo sera tomado en cuenta si en el mensaje a enviar se incluye este enlace "http://1rck.in/-000000"
-$newMessage->setHtml('<p>Texto en <b>HTML</b></p>');
-
-// Envio el mensaje
-if ($newMessage->send()) {
-    echo "Se envio el mensaje" . PHP_EOL;
-} else {
-    echo "No se pudo enviar el mensaje" . PHP_EOL;
-}
-
-// Compruebo si no se generaron errores
-if ($newMessage->hasErrors()) {
-    echo "Se encontraron errores:" . PHP_EOL . PHP_EOL;
-
-    echo "Código de error: " . $newMessage->getErrorNumber() . PHP_EOL;
-    echo "Mensaje de error: " . $newMessage->getErrorMessage() . PHP_EOL;
+    if (method_exists($e, 'getExtraData')) {
+        print_r($e->getExtraData());
+    }
 }
 
 ```
 
-## Envío de SMS en bloque:
-Esta función permite el envío de múltiples SMS mediante una única petición a la API.
+### Envío de mensajes en bloque:
+Esta función te permite enviar múltiples SMS en una sola peticion.
 
 ```php
 <?php
 
 require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosMessage.php';
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosBlock.php';
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
 
-SmsmasivosCredentials::setUserAndPassword("DEMO500", "DEMO500");
+try {
+    // Ingresamos los datos de autenticación.
+    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
 
-//
-// Generamos un mensaje básico
-//
+    $data = array();
 
-$newMessage = new SmsmasivosMessage();
+    $data['configs'] = array(
+        'is_test' => true, // opcional
+    );
 
-// Ingreso el numero de teléfono al que enviare el mensaje
-$newMessage->setPhoneNumber('1122223344');
+    $data['messages'] = array(
+        array(
+            'message' => 'texto 1',
+            'phone_number' => '1234567890',
+            'internal_id' => 'Ab123', // opcional
+        ),
+        array(
+            'message' => 'texto 2',
+            'phone_number' => '1234567891',
+        ),
+    );
 
-// Ingreso el mensaje que enviare
-$newMessage->setMessage('Mensaje a enviar');
+    // Enviamos el bloque de mensajes.
+    Smsmasivos::sendMessagesInBlock($data);
+} catch (Exception $e) {
+    echo 'code: ' . $e->getCode() . PHP_EOL;
+    echo 'msg: ' . $e->getMessage() . PHP_EOL;
 
-// Ingreso un ID con el que podre identificarlo desde mi sistema
-$newMessage->setInternalId("ABC123");
-
-//
-// iniciamos un nuevo bloque
-//
-
-$newBlock = new SmsmasivosBlock();
-
-// Seteamos el separador del bloque, de forma predeterminada viene en "coma"
-$newBlock->useFieldSeparatorComa();
-
-// seteamos que se trata de una prueba
-$newBlock->isTest();
-
-// Agregamos el mensaje a enviar
-$newBlock->addMessageToBlock($newMessage);
-
-// enviamos el bloque
-if ($newBlock->send()) {
-    echo "Se envio el bloque de mensajes" . PHP_EOL;
-} else {
-    echo "No se pudo enviar el bloque de mensajes" . PHP_EOL;
-}
-
-// si hay errores los mostramos
-if ($newBlock->hasErrors()) {
-    echo "Se encontraron errores:" . PHP_EOL . PHP_EOL;
-
-    foreach ($newBlock->getErrors() as $error) {
-        echo sprintf("Codigo %s: %s", $error['number'], $error['message']) . PHP_EOL;
+    if (method_exists($e, 'getExtraData')) {
+        print_r($e->getExtraData());
     }
 }
 
 ```
+
+### Verificación de bloque de mensajes enviados.
+Con esta función podes verificar si un bloque de mensajes fue enviado.
+
+```php
+<?php
+
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
+
+try {
+    // Ingresamos los datos de autenticación.
+    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
+
+    /****************************************************************
+    Verificamos el estado de un mensaje en particular y lo marcamos como leído.
+     ****************************************************************/
+
+    // Enviamos el bloque de mensajes.
+    $res = Smsmasivos::checkMessageBlockSent('Ab123', 'internal_id', array(
+        'mark_as_read' => 1,
+    ));
+
+    if ($res && count($res)) {
+        if ($res[0]['sent']) {
+            echo 'El mensaje "' . $res[0]['internal_id'] . '" fue enviado.' . PHP_EOL;
+        } else {
+            echo 'El mensaje "' . $res[0]['internal_id'] . '" no fue enviado por esta razón: ' . $res[0]['error'] . PHP_EOL;
+        }
+    } else {
+        echo 'No se encontraron datos.' . PHP_EOL;
+    }
+
+    /****************************************************************
+    Verificamos si se enviaron los mensajes de un fecha particular.
+     ****************************************************************/
+
+    $date = new DateTime('NOW');
+    $res = Smsmasivos::checkMessageBlockSent($date, 'date');
+
+    if ($res && count($res)) {
+        foreach ($res as $m) {
+            if ($m['sent']) {
+                echo 'El mensaje "' . $m['internal_id'] . '" fue enviado.' . PHP_EOL;
+            } else {
+                echo 'El mensaje "' . $m['internal_id'] . '" no fue enviado por esta razón: ' . $m['error'] . PHP_EOL;
+            }
+        }
+    } else {
+        echo 'No se encontraron datos.' . PHP_EOL;
+    }
+} catch (Exception $e) {
+    echo 'code: ' . $e->getCode() . PHP_EOL;
+    echo 'msg: ' . $e->getMessage() . PHP_EOL;
+
+    if (method_exists($e, 'getExtraData')) {
+        print_r($e->getExtraData());
+    }
+}
+
+
+```
+
+### Recibimos las respuestas a los mensajes que enviamos
+
+```php
+<?php
+
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
+
+try {
+    // Ingresamos los datos de autenticación.
+    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
+
+    /*
+    Recuperamos las respuesta de un numero en particular y lo marcamos como leido
+     */
+
+    // configuraciones opcionales
+    $configs = array(
+        'phone_number' => '1234567890',
+        'mark_as_read' => true,
+    );
+
+    $res = Smsmasivos::receiveMessages($configs);
+
+    if (count($res)) {
+        foreach ($res as $t) {
+            echo 'Enviado por: ' . $t['phone_number'] . PHP_EOL;
+            echo 'Mensaje: ' . $t['message'] . PHP_EOL;
+            echo 'Fecha de la respuesta: ' . $t['date']->format('d-m-Y H:i:s') . PHP_EOL;
+            echo PHP_EOL;
+        }
+    } else {
+        echo 'No se encontraron datos' . PHP_EOL;
+    }
+} catch (Exception $e) {
+    echo 'code: ' . $e->getCode() . PHP_EOL;
+    echo 'msg: ' . $e->getMessage() . PHP_EOL;
+
+    if (method_exists($e, 'getExtraData')) {
+        print_r($e->getExtraData());
+    }
+}
+
+```
+
+### Licencia
+Distribuido bajo la licencia MIT. Vea `LICENSE.md` para más información.
+
+_Este software y sus desarrolladores no tienen ninguna relación con [SMS masivos](https://smsmasivos.com.ar)._
