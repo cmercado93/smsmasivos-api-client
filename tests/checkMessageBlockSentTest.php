@@ -11,7 +11,6 @@ try {
     Verificamos el estado de un mensaje en particular y lo marcamos como leído.
      ****************************************************************/
 
-    // Enviamos el bloque de mensajes.
     $res = Smsmasivos::checkMessageBlockSent('Ab123', 'internal_id', array(
         'mark_as_read' => 1,
     ));

@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/Classes/SmsmasivosGetBalance.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetCurrentDateServer.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetPackageExpiration.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetNumberMessagesSent.php';
+require_once dirname(__FILE__) . '/Classes/SmsmasivosReceiveMessages.php';
 
 class Smsmasivos
 {
@@ -67,7 +68,11 @@ class Smsmasivos
      */
     public static function receiveMessages(array $configs = array())
     {
-        return false;
+        $i = new SmsmasivosReceiveMessages;
+
+        $i->setConfigs($configs);
+
+        return $i->receive();
     }
 
     /**
