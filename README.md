@@ -10,6 +10,7 @@ __*Funciones que requieren autenticación.*__
 - Envío de SMS en tiempo real.
 - Envío de SMS en bloque.
 - Comprobación de mensajes enviados mediante bloque.
+- Recepción de mensajes.
 - Consulta de saldo (Cuentas prepago).
 - Consulta de vencimiento del paquete contratado (Cuentas prepago).
 - Consulta de cantidad de mensajes enviados en el mes.
