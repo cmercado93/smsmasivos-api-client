@@ -64,3 +64,47 @@ try {
 }
 
 ```
+
+## Envío de mensajes en bloque:
+Esta función te permite enviar múltiples SMS's en una sola peticion.
+
+```php
+<?php
+
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
+require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
+
+try {
+    // Ingresamos los datos de autenticación.
+    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
+
+    $data = array();
+
+    $data['configs'] = array(
+        'is_test' => true, // opcional
+    );
+
+    $data['messages'] = array(
+        array(
+            'message' => 'texto 1',
+            'phone_number' => '1234567890',
+            'internal_id' => 'Ab123', // opcional
+        ),
+        array(
+            'message' => 'texto 2',
+            'phone_number' => '1234567891',
+        ),
+    );
+
+    // Enviamos el bloque de mensajes.
+    Smsmasivos::sendMessagesInBlock($data);
+} catch (Exception $e) {
+    echo 'code: ' . $e->getCode() . PHP_EOL;
+    echo 'msg: ' . $e->getMessage() . PHP_EOL;
+
+    if (method_exists($e, 'getExtraData')) {
+        print_r($e->getExtraData());
+    }
+}
+
+```

@@ -4,6 +4,8 @@ require_once dirname(__FILE__) . '/../SmsmasivosCredentials.php';
 require_once dirname(__FILE__) . '/../Http/SmsmasivosHttpRequest.php';
 require_once dirname(__FILE__) . '/../Common/SmsmasivosEndpoints.php';
 require_once dirname(__FILE__) . '/../Exceptions/SmsmasivosException.php';
+require_once dirname(__FILE__) . '/../Exceptions/SmsmasivosValidationException.php';
+require_once dirname(__FILE__) . '/../Exceptions/SmsmasivosApiResponseException.php';
 require_once dirname(__FILE__) . '/../Common/SmsmasivosMessageValidation.php';
 
 class SmsmasivosSendMessage
@@ -80,7 +82,7 @@ class SmsmasivosSendMessage
         }
 
         if (count($errors)) {
-            throw new SmsmasivosException("Data error", 101, $errors);
+            throw new SmsmasivosValidationException($errors);
         }
     }
 
@@ -135,7 +137,7 @@ class SmsmasivosSendMessage
             'code' => -99,
         );
 
-        throw new SmsmasivosException("Error response data", 102, $errors);
+        throw new SmsmasivosApiResponseException($errors);
     }
 
     private function parseApiResponse($response)
@@ -159,6 +161,6 @@ class SmsmasivosSendMessage
             );
         }
 
-        throw new SmsmasivosException("Error response data", 102, $errors);
+        throw new SmsmasivosApiResponseException($errors);
     }
 }

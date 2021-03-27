@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname(__FILE__) . '/../src/Common/SmsmasivosCredentials.php';
 require_once dirname(__FILE__) . '/../src/Smsmasivos.php';
 
 try {

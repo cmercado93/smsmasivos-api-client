@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__) . '/Classes/SmsmasivosSendMessage.php';
+require_once dirname(__FILE__) . '/Classes/SmsmasivosSendMessagesInBlock.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetBalance.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetCurrentDateServer.php';
 require_once dirname(__FILE__) . '/Classes/SmsmasivosGetPackageExpiration.php';
@@ -9,7 +10,7 @@ require_once dirname(__FILE__) . '/Classes/SmsmasivosGetNumberMessagesSent.php';
 class Smsmasivos
 {
     /**
-     * [sendMessage description]
+     * Enviamos un mensaje directo
      * @param  string $phoneNumber Numero telefónico del destinatario
      * @param  string $message     Mensaje a enviar
      * @param  array  $configs     Configuraciones adicionales para el envío
@@ -23,13 +24,21 @@ class Smsmasivos
     }
 
     /**
-     * [sendBlock description]
-     * @param  array  $data [description]
-     * @return [type]       [description]
+     * Enviamos un bloque de mensajes
+     * @param  array $data
+     * @return bool
      */
-    public static function sendBlock(array $data)
+    public static function sendMessagesInBlock(array $data)
     {
-        return true;
+        $i = new SmsmasivosSendMessagesInBlock;
+
+        $data['configs'] = isset($data['configs']) ? $data['configs'] : array();
+        $data['messages'] = isset($data['messages']) ? $data['messages'] : array();
+
+        $i->setConfigs($data['configs']);
+        $i->setMessageBlock($data['messages']);
+
+        return $i->send();
     }
 
     /**
