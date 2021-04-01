@@ -6,13 +6,6 @@ require_once dirname(__FILE__) . '/../Common/SmsmasivosEndpoints.php';
 
 class SmsmasivosGetCurrentDateServer
 {
-    public function __construct()
-    {
-        if (!SmsmasivosCredentials::existsCredentials()) {
-            throw new Exception("No se ingresaron las credenciales necesarias");
-        }
-    }
-
     public function get()
     {
         $r = new SmsmasivosHttpRequest(SmsmasivosEndpoints::URL_GENERAL);
