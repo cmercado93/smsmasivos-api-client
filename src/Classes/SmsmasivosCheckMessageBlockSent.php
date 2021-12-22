@@ -86,7 +86,7 @@ class SmsmasivosCheckMessageBlockSent
 
             $tmp['internal_id'] = $mht[1];
 
-            if ($this->configs['api_response_date'] == 'raw') {
+            if (isset($this->configs['api_response_date']) && $this->configs['api_response_date'] == 'raw') {
                 $tmp['date'] = $mht[2];
             } else {
                 $tmp['date'] = new DateTime($mht[2]);
