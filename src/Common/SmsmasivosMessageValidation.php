@@ -9,7 +9,7 @@ class SmsmasivosMessageValidation
      */
     public function validateMessageCharacters($value)
     {
-        $re = '/^[A-Za-z0-9\!\?\#\$\%\(\)\*\+\-\.\/\:\;\=\@\ ]+$/';
+        $re = '/^[A-Za-z0-9\!\?\#\$\%\(\)\*\+\-\.\/\:\;\=\@\ \,]+$/';
 
         return (bool) preg_match($re, $value);
     }
