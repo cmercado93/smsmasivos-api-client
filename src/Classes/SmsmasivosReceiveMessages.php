@@ -73,7 +73,9 @@ class SmsmasivosReceiveMessages
                 $tmp['date'] = new DateTime($mht[3]);
             }
 
-            $tmp['internal_id'] = $mht[4];
+            $tmp['smsmasivos_id'] = $mht[4];
+
+            $tmp['internal_id'] = $mht[5];
 
             array_push($messages, $tmp);
         }
