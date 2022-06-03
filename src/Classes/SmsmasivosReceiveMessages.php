@@ -67,13 +67,15 @@ class SmsmasivosReceiveMessages
             $tmp['phone_number'] = $mht[1];
             $tmp['message'] = utf8_encode($mht[2]);
 
-            if ($this->configs['api_response_date'] == 'raw') {
+            if (isset($this->configs['api_response_date']) && $this->configs['api_response_date'] == 'raw') {
                 $tmp['date'] = $mht[3];
             } else {
                 $tmp['date'] = new DateTime($mht[3]);
             }
 
-            $tmp['internal_id'] = $mht[4];
+            $tmp['smsmasivos_id'] = $mht[4];
+
+            $tmp['internal_id'] = $mht[5];
 
             array_push($messages, $tmp);
         }
