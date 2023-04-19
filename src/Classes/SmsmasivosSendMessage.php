@@ -28,7 +28,7 @@ class SmsmasivosSendMessage
         return $this->send($data);
     }
 
-    private function validate(array $data)
+    protected function validate(array $data)
     {
         $errors = array();
 
@@ -86,7 +86,7 @@ class SmsmasivosSendMessage
         }
     }
 
-    private function getDataToSend(array $data)
+    protected function getDataToSend(array $data)
     {
         $credential = SmsmasivosCredentials::getUserAndPassword();
 
@@ -118,7 +118,7 @@ class SmsmasivosSendMessage
         return $res;
     }
 
-    private function send(array $data)
+    protected function send(array $data)
     {
         $r = new SmsmasivosHttpRequest(SmsmasivosEndpoints::URL_GENERAL);
 
@@ -140,7 +140,7 @@ class SmsmasivosSendMessage
         throw new SmsmasivosApiResponseException($errors);
     }
 
-    private function parseApiResponse($response)
+    protected function parseApiResponse($response)
     {
         $errors = array();
 

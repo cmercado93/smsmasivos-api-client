@@ -10,13 +10,13 @@ require_once dirname(__FILE__) . '/../Common/SmsmasivosMessageValidation.php';
 
 class SmsmasivosCheckMessageBlockSent
 {
-    private $filter = 'internal_id';
+    protected $filter = 'internal_id';
 
-    private $filterValue = null;
+    protected $filterValue = null;
 
-    private $configs = array();
+    protected $configs = array();
 
-    private $filters = array(
+    protected $filters = array(
         'internal_id',
         'date',
     );
@@ -67,7 +67,7 @@ class SmsmasivosCheckMessageBlockSent
      * @param  string $response
      * @return boolean|array
      */
-    private function parseApiResponse($response)
+    protected function parseApiResponse($response)
     {
         if (trim(strtoupper($response)) == 'PENDIENTE') {
             return false;
@@ -105,7 +105,7 @@ class SmsmasivosCheckMessageBlockSent
         return $messages;
     }
 
-    private function getDataToSend()
+    protected function getDataToSend()
     {
         $credential = SmsmasivosCredentials::getUserAndPassword();
 
@@ -134,7 +134,7 @@ class SmsmasivosCheckMessageBlockSent
         return $res;
     }
 
-    private function validateFilter($filter, $value)
+    protected function validateFilter($filter, $value)
     {
         $errors = array();
 

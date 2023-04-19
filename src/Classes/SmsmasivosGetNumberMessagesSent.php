@@ -33,7 +33,7 @@ class SmsmasivosGetNumberMessagesSent
         return false;
     }
 
-    private function parseApiResponse($response)
+    protected function parseApiResponse($response)
     {
         if (is_numeric($response)) {
             return (int) $response;

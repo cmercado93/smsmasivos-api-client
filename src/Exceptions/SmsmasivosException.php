@@ -2,7 +2,7 @@
 
 class SmsmasivosException extends Exception
 {
-    private $extraData;
+    protected $extraData;
 
     public function __construct($message = "", $code = 1, array $extraData = array())
     {

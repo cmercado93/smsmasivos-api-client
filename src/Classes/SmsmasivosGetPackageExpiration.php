@@ -33,7 +33,7 @@ class SmsmasivosGetPackageExpiration
         return false;
     }
 
-    private function parseApiResponse($response)
+    protected function parseApiResponse($response)
     {
         $re = '/^20[0-9]{2}\-[0-1][0-2]\-[0-3][0-9]$/';
 

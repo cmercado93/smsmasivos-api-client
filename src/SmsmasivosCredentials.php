@@ -8,13 +8,13 @@ class SmsmasivosCredentials
      * Usuario valido en la API
      * @var string
      */
-    private static $user;
+    protected static $user;
 
     /**
      * Clave de la API
      * @var string
      */
-    private static $password;
+    protected static $password;
 
     public static function setUserAndPassword($user, $password)
     {

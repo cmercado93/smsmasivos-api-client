@@ -21,7 +21,7 @@ class SmsmasivosGetCurrentDateServer
         return false;
     }
 
-    private function parseApiResponse($response)
+    protected function parseApiResponse($response)
     {
         try {
             return new DateTime($response);

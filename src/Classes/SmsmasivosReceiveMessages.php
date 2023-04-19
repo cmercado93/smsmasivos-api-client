@@ -10,7 +10,7 @@ require_once dirname(__FILE__) . '/../Common/SmsmasivosMessageValidation.php';
 
 class SmsmasivosReceiveMessages
 {
-    private $configs = array();
+    protected $configs = array();
 
     public function __construct()
     {
@@ -51,7 +51,7 @@ class SmsmasivosReceiveMessages
      * @param  string $response
      * @return boolean|array
      */
-    private function parseApiResponse($response)
+    protected function parseApiResponse($response)
     {
         $re = '/^([0-9]{10})\t([A-Za-z0-9\!\?\#\$\%\(\)\*\+\-\.\/\:\;\=\@\ ]+)\t([0-9\-\:\ ]+)\t([0-9]+)\t([A-Za-z0-9]+)/m';
 
@@ -83,7 +83,7 @@ class SmsmasivosReceiveMessages
         return $messages;
     }
 
-    private function validateConfigs($configs)
+    protected function validateConfigs($configs)
     {
         $errors = array();
 
@@ -108,7 +108,7 @@ class SmsmasivosReceiveMessages
         }
     }
 
-    private function getDataToSend()
+    protected function getDataToSend()
     {
         $credential = SmsmasivosCredentials::getUserAndPassword();
 

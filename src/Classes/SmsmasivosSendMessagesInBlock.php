@@ -15,9 +15,9 @@ class SmsmasivosSendMessagesInBlock
 
     const FIELD_SEPARATOR_STRING_COMA = "coma";
 
-    private $configs = array();
+    protected $configs = array();
 
-    private $messageBlock = array();
+    protected $messageBlock = array();
 
     public function __construct()
     {
@@ -61,7 +61,7 @@ class SmsmasivosSendMessagesInBlock
     /**
      * @return array
      */
-    private function getDataToSend()
+    protected function getDataToSend()
     {
         $credential = SmsmasivosCredentials::getUserAndPassword();
 
@@ -93,7 +93,7 @@ class SmsmasivosSendMessagesInBlock
         return $data;
     }
 
-    private function validateMessageBlock(array $data)
+    protected function validateMessageBlock(array $data)
     {
         $validator = new SmsmasivosMessageValidation;
 

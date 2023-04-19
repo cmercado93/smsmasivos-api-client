@@ -5,7 +5,7 @@ class SmsmasivosHttpRequest
     /**
      * @var string
      */
-    private $host;
+    protected $host;
 
     /**
      * @param string
@@ -51,7 +51,7 @@ class SmsmasivosHttpRequest
      * @param  string
      * @return array
      */
-    private function exec($uri, $data, $method)
+    protected function exec($uri, $data, $method)
     {
         $path = parse_url($uri, PHP_URL_PATH);
 
