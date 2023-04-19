@@ -8,9 +8,7 @@ class SmsmasivosGetBalance
 {
     public function __construct()
     {
-        if (!SmsmasivosCredentials::existsCredentials()) {
-            throw new Exception("No se ingresaron las credenciales necesarias");
-        }
+        SmsmasivosCredentials::existsCredentials(true);
     }
 
     public function get()
