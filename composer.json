@@ -1,0 +1,19 @@
+{
+    "name": "cmercado93/smsmasivos-api-client",
+    "description": "Librería para el uso de la API de SMS masivos Argentina",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Cmercado93\\SmsmasivosApiClient\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Carlos Mercado",
+            "email": "cmercado93@outlook.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
