@@ -63,14 +63,14 @@ class SmsmasivosSendMessagesInBlock
      */
     protected function getDataToSend()
     {
-        $credential = SmsmasivosCredentials::getUserAndPassword();
+        $credentials = SmsmasivosCredentials::getCredentialsForApi();
 
-        $data = array(
-            'usuario' => $credential['user'],
-            'clave' => $credential['password'],
-            'bloque' => array(),
-            'separadorcampos' => self::FIELD_SEPARATOR_STRING_COMA,
-        );
+        // Iniciamos con las credenciales (apikey o usuario/clave)
+        $data = $credentials;
+
+        // Agregamos los parámetros del bloque
+        $data['bloque'] = array();
+        $data['separadorcampos'] = self::FIELD_SEPARATOR_STRING_COMA;
 
         if (isset($this->configs['is_test'])) {
             $data['test'] = 1;

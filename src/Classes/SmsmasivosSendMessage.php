@@ -88,16 +88,16 @@ class SmsmasivosSendMessage
 
     protected function getDataToSend(array $data)
     {
-        $credential = SmsmasivosCredentials::getUserAndPassword();
+        $credentials = SmsmasivosCredentials::getCredentialsForApi();
 
-        $res = array(
-            'usuario' => $credential['user'],
-            'clave' => $credential['password'],
-            'tos' => $data['phone_number'],
-            'texto' => $data['message'],
-            'api' => 1,
-            'respuestanumerica' => 1,
-        );
+        // Iniciamos con las credenciales (apikey o usuario/clave)
+        $res = $credentials;
+
+        // Agregamos los parámetros del mensaje
+        $res['tos'] = $data['phone_number'];
+        $res['texto'] = $data['message'];
+        $res['api'] = 1;
+        $res['respuestanumerica'] = 1;
 
         if (isset($data['configs']['internal_id'])) {
             $res['idinterno'] = $data['configs']['internal_id'];

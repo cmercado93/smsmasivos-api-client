@@ -107,12 +107,10 @@ class SmsmasivosCheckMessageBlockSent
 
     protected function getDataToSend()
     {
-        $credential = SmsmasivosCredentials::getUserAndPassword();
+        $credentials = SmsmasivosCredentials::getCredentialsForApi();
 
-        $res = array(
-            'usuario' => $credential['user'],
-            'clave' => $credential['password'],
-        );
+        // Iniciamos con las credenciales (apikey o usuario/clave)
+        $res = $credentials;
 
         switch ($this->filter) {
             case 'internal_id':

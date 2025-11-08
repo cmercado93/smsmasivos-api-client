@@ -4,7 +4,11 @@ require_once dirname(__FILE__) . '/../src/SmsmasivosCredentials.php';
 require_once dirname(__FILE__) . '/../src/Smsmasivos.php';
 
 try {
-    // Ingresamos los datos de autenticación.
+    // Método 1: Autenticación con APIKEY (recomendado - API v12)
+    // Descomenta la siguiente línea y reemplaza 'TU_APIKEY_AQUI' con tu APIKEY real
+    // SmsmasivosCredentials::setApiKey('TU_APIKEY_AQUI');
+
+    // Método 2: Autenticación con usuario y contraseña (legacy)
     SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
 
     /****************************************************************
