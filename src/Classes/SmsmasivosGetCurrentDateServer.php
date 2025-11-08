@@ -10,8 +10,7 @@ class SmsmasivosGetCurrentDateServer
     {
         $r = new SmsmasivosHttpRequest(SmsmasivosEndpoints::URL_GENERAL);
 
-        $credentials = SmsmasivosCredentials::getUserAndPassword();
-
+        // get_fecha.asp no requiere credenciales según la documentación
         $res = $r->get(SmsmasivosEndpoints::GET_CURRENT_DATE_SERVER);
 
         if ($res['code'] == 200) {

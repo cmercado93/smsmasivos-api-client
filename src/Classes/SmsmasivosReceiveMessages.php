@@ -110,13 +110,13 @@ class SmsmasivosReceiveMessages
 
     protected function getDataToSend()
     {
-        $credential = SmsmasivosCredentials::getUserAndPassword();
+        $credentials = SmsmasivosCredentials::getCredentialsForApi();
 
-        $res = array(
-            'usuario' => $credential['user'],
-            'clave' => $credential['password'],
-            'traeridinterno' => 1,
-        );
+        // Iniciamos con las credenciales (apikey o usuario/clave)
+        $res = $credentials;
+
+        // Agregamos los parámetros de recepción
+        $res['traeridinterno'] = 1;
 
         if (isset($this->configs['phone_number'])) {
             $res['origen'] = $this->configs['phone_number'];

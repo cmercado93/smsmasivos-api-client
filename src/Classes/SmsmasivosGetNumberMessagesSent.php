@@ -15,13 +15,10 @@ class SmsmasivosGetNumberMessagesSent
     {
         $r = new SmsmasivosHttpRequest(SmsmasivosEndpoints::URL_GENERAL);
 
-        $credentials = SmsmasivosCredentials::getUserAndPassword();
+        $credentials = SmsmasivosCredentials::getCredentialsForApi();
 
         $data = array(
-            'query' => array(
-                'usuario' => $credentials['user'],
-                'clave' => $credentials['password'],
-            ),
+            'query' => $credentials,
         );
 
         $res = $r->get(SmsmasivosEndpoints::GET_NUMBER_MESSAGES_SENT, $data);
