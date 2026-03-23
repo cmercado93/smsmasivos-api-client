@@ -1,14 +1,17 @@
 <?php
 
-require_once dirname(__FILE__) . '/../SmsmasivosCredentials.php';
-require_once dirname(__FILE__) . '/../Http/SmsmasivosHttpRequest.php';
-require_once dirname(__FILE__) . '/../Common/SmsmasivosEndpoints.php';
-require_once dirname(__FILE__) . '/../Exceptions/SmsmasivosException.php';
-require_once dirname(__FILE__) . '/../Exceptions/SmsmasivosValidationException.php';
-require_once dirname(__FILE__) . '/../Exceptions/SmsmasivosApiResponseException.php';
-require_once dirname(__FILE__) . '/../Common/SmsmasivosMessageValidation.php';
+namespace Cmercado93\SmsmasivosApi\Operations;
 
-class SmsmasivosCheckMessageBlockSent
+use Cmercado93\SmsmasivosApi\Credentials;
+use Cmercado93\SmsmasivosApi\Http\HttpRequestInterface;
+use Cmercado93\SmsmasivosApi\Http\HttpRequest;
+use Cmercado93\SmsmasivosApi\Common\Endpoints;
+use Cmercado93\SmsmasivosApi\Common\MessageValidation;
+use Cmercado93\SmsmasivosApi\Common\ResponseCode;
+use Cmercado93\SmsmasivosApi\Exceptions\ValidationException;
+use Cmercado93\SmsmasivosApi\Exceptions\ApiResponseException;
+
+class CheckMessageBlockSent
 {
     protected $filter = 'internal_id';
 
@@ -21,9 +24,12 @@ class SmsmasivosCheckMessageBlockSent
         'date',
     );
 
-    public function __construct()
+    protected $http;
+
+    public function __construct(HttpRequestInterface $http = null)
     {
-        SmsmasivosCredentials::existsCredentials(true);
+        Credentials::existsCredentials(true);
+        $this->http = $http ?: new HttpRequest(Endpoints::URL_GENERAL);
     }
 
     public function setFilter($filter, $value)
@@ -42,13 +48,11 @@ class SmsmasivosCheckMessageBlockSent
 
     public function check()
     {
-        $r = new SmsmasivosHttpRequest(SmsmasivosEndpoints::URL_GENERAL);
-
         $data = array(
             'query' => $this->getDataToSend(),
         );
 
-        $res = $r->post(SmsmasivosEndpoints::CHECK_SENT_BLOCK, $data);
+        $res = $this->http->get(Endpoints::CHECK_SENT_BLOCK, $data);
 
         if ($res['code'] == 200) {
             return $this->parseApiResponse($res['response']);
@@ -56,16 +60,15 @@ class SmsmasivosCheckMessageBlockSent
 
         $errors['api_response'][] = array(
             'message' => 'Error en la API (' . $res['code'] . '): ' . (string) $res['response'],
-            'code' => -99,
+            'code' => ResponseCode::OTHER,
         );
 
-        throw new SmsmasivosApiResponseException($errors);
+        throw new ApiResponseException($errors);
     }
 
     /**
-     * Analizo los datos que me pasan
      * @param  string $response
-     * @return boolean|array
+     * @return false|array
      */
     protected function parseApiResponse($response)
     {
@@ -82,6 +85,10 @@ class SmsmasivosCheckMessageBlockSent
         preg_match_all($re, $response, $math, PREG_SET_ORDER, 0);
 
         foreach ($math as $mht) {
+            if (count($mht) < 4) {
+                continue;
+            }
+
             $tmp = array();
 
             $tmp['internal_id'] = $mht[1];
@@ -89,14 +96,18 @@ class SmsmasivosCheckMessageBlockSent
             if (isset($this->configs['api_response_date']) && $this->configs['api_response_date'] == 'raw') {
                 $tmp['date'] = $mht[2];
             } else {
-                $tmp['date'] = new DateTime($mht[2]);
+                try {
+                    $tmp['date'] = new \DateTime('@' . $mht[2]);
+                } catch (\Exception $e) {
+                    $tmp['date'] = $mht[2];
+                }
             }
 
             if (trim(strtoupper($mht[3])) == 'OK') {
                 $tmp['sent'] = true;
             } else {
                 $tmp['sent'] = false;
-                $tmp['error'] = utf8_encode($mht[3]);
+                $tmp['error'] = mb_convert_encoding($mht[3], 'UTF-8', 'ISO-8859-1');
             }
 
             array_push($messages, $tmp);
@@ -107,19 +118,16 @@ class SmsmasivosCheckMessageBlockSent
 
     protected function getDataToSend()
     {
-        $credential = SmsmasivosCredentials::getUserAndPassword();
+        $auth = Credentials::getAuthParams();
 
-        $res = array(
-            'usuario' => $credential['user'],
-            'clave' => $credential['password'],
-        );
+        $res = $auth;
 
         switch ($this->filter) {
             case 'internal_id':
                 $res['idinterno'] = $this->filterValue;
                 break;
             case 'date':
-                $res['fecha'] = $this->filterValue instanceof DateTime ? $this->filterValue->format('YmdHis') : '';
+                $res['fecha'] = $this->filterValue instanceof \DateTime ? $this->filterValue->format('YmdHis') : '';
                 break;
         }
 
@@ -142,39 +150,40 @@ class SmsmasivosCheckMessageBlockSent
             $errors['filter'] = array(
                 array(
                     'message' => 'filter not valid',
-                    'code' => -99,
+                    'code' => ResponseCode::OTHER,
                 ),
             );
         }
 
         switch ($filter) {
             case 'internal_id':
-                $validator = new SmsmasivosMessageValidation;
+                $validator = new MessageValidation();
 
                 if (!$validator->validateInternalIdLength($value)) {
                     $errors['filter_value'][] = array(
                         'message' => 'El valor del filtro ID interno es muy largo',
-                        'code' => -99,
+                        'code' => ResponseCode::OTHER,
                     );
-                } elseif (!$validator->validateInternalIdCharacters($value)) {
+                }
+                if (!$validator->validateInternalIdCharacters($value)) {
                     $errors['filter_value'][] = array(
-                        'message' => 'El valor del filtro ID interno contiene caracteres inválidos',
-                        'code' => -99,
+                        'message' => 'El valor del filtro ID interno contiene caracteres invalidos',
+                        'code' => ResponseCode::OTHER,
                     );
                 }
                 break;
             case 'date':
-                if ($value instanceof DateTime == false) {
+                if (!($value instanceof \DateTime)) {
                     $errors['filter_value'][] = array(
                         'message' => 'El valor del filtro fecha debe ser una instancia de DateTime',
-                        'code' => -99,
+                        'code' => ResponseCode::OTHER,
                     );
                 }
                 break;
         }
 
         if (count($errors)) {
-            throw new SmsmasivosValidationException($errors);
+            throw new ValidationException($errors);
         }
     }
 }
