@@ -1,6 +1,8 @@
 <?php
 
-class SmsmasivosException extends Exception
+namespace Cmercado93\SmsmasivosApi\Exceptions;
+
+class SmsmasivosException extends \Exception
 {
     protected $extraData;
 

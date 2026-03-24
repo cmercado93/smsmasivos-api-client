@@ -1,6 +1,11 @@
 <?php
 
-class SmsmasivosHttpRequest
+namespace Cmercado93\SmsmasivosApi\Http;
+
+use Cmercado93\SmsmasivosApi\Exceptions\ApiResponseException;
+use Cmercado93\SmsmasivosApi\Common\ResponseCode;
+
+class HttpRequest implements HttpRequestInterface
 {
     /**
      * @var string
@@ -8,7 +13,7 @@ class SmsmasivosHttpRequest
     protected $host;
 
     /**
-     * @param string
+     * @param string $host
      */
     public function __construct($host)
     {
@@ -16,49 +21,47 @@ class SmsmasivosHttpRequest
     }
 
     /**
-     * @param  string
-     * @param  array
+     * @param  string $path
+     * @param  array  $params
      * @return array
      */
     public function get($path, $params = array())
     {
         $data = array();
-
         $data['query'] = isset($params['query']) ? $params['query'] : array();
 
         return $this->exec($path, $data, 'GET');
     }
 
     /**
-     * @param  string
-     * @param  array
+     * @param  string $path
+     * @param  array  $params
      * @return array
      */
     public function post($path, $params = array())
     {
         $data = array();
-
         $data['query'] = isset($params['query']) ? $params['query'] : array();
-
         $data['body'] = isset($params['body']) ? $params['body'] : array();
 
         return $this->exec($path, $data, 'POST');
     }
 
     /**
-     * @param  string
-     * @param  array
-     * @param  string
+     * @param  string $uri
+     * @param  array  $data
+     * @param  string $method
      * @return array
      */
     protected function exec($uri, $data, $method)
     {
-        $path = parse_url($uri, PHP_URL_PATH);
+        $parsed = parse_url($uri);
+        $path = isset($parsed['path']) ? $parsed['path'] : $uri;
 
         $query = array();
 
-        if ($tmp = parse_url($uri, PHP_URL_QUERY)) {
-            parse_str($tmp, $query);
+        if (isset($parsed['query'])) {
+            parse_str($parsed['query'], $query);
         }
 
         if (isset($data['query'])) {
@@ -69,12 +72,9 @@ class SmsmasivosHttpRequest
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $url); 
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
-
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
         curl_setopt($ch, CURLOPT_HEADER, false);
 
         if ($method == 'POST') {
@@ -88,8 +88,22 @@ class SmsmasivosHttpRequest
             }
         }
 
-        $output = (string) curl_exec($ch);
+        $output = curl_exec($ch);
 
+        if ($output === false) {
+            $error = curl_error($ch);
+            $errno = curl_errno($ch);
+            curl_close($ch);
+
+            throw new ApiResponseException(array(
+                'api_response' => array(array(
+                    'message' => 'cURL error (' . $errno . '): ' . $error,
+                    'code' => ResponseCode::OTHER,
+                )),
+            ));
+        }
+
+        $output = (string) $output;
         $info = curl_getinfo($ch);
 
         curl_close($ch);
