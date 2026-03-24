@@ -1,6 +1,8 @@
 <?php
 
-class SmsmasivosEndpoints
+namespace Cmercado93\SmsmasivosApi\Common;
+
+class Endpoints
 {
     const URL_GENERAL = "https://servicio.smsmasivos.com.ar";
 
@@ -20,5 +22,5 @@ class SmsmasivosEndpoints
 
     const GET_NUMBER_MESSAGES_SENT = "obtener_envios.asp";
 
-    const GET_CURRENT_DATE_SERVER = "get_fecha.asp?iso=1";
+    const GET_CURRENT_DATE_SERVER = "get_fecha.asp";
 }

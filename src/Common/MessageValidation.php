@@ -1,32 +1,35 @@
 <?php
 
-class SmsmasivosMessageValidation
+namespace Cmercado93\SmsmasivosApi\Common;
+
+class MessageValidation
 {
     /**
-     * Validamos si los caracteres del mensaje son validos
-     * @param  string
+     * @param  string $value
      * @return boolean
      */
     public function validateMessageCharacters($value)
     {
+        if ($value === '' || $value === null) {
+            return false;
+        }
+
         $re = '/^[A-Za-z0-9\!\?\#\$\%\(\)\*\+\-\.\/\:\;\=\@\ \,]+$/';
 
         return (bool) preg_match($re, $value);
     }
 
     /**
-     * Validamos si el largo del mensaje es valido
-     * @param  string
+     * @param  string $value
      * @return boolean
      */
     public function validateMessageLength($value)
     {
-        return strlen((string)$value) <= 160;
+        return mb_strlen((string) $value, 'UTF-8') <= 160;
     }
 
     /**
-     * Validamos si los caracteres del numero telefónico son validos
-     * @param  string
+     * @param  string $value
      * @return boolean
      */
     public function validatePhoneNumberCharacters($value)
@@ -37,20 +40,18 @@ class SmsmasivosMessageValidation
     }
 
     /**
-     * Validamos si el largo del numero telefónico es valido
-     * @param  string
+     * @param  string $value
      * @return boolean
      */
     public function validatePhoneNumberLength($value)
     {
-        $re = '/^([0-9]{1,4})?[0-9]{10}$/';
+        $re = '/^([0-9]{1,4})?[0-9]{8,10}$/';
 
         return (bool) preg_match($re, $value);
     }
 
     /**
-     * Validamos los caracteres del ID interno
-     * @param  string
+     * @param  string $value
      * @return boolean
      */
     public function validateInternalIdCharacters($value)
@@ -61,8 +62,7 @@ class SmsmasivosMessageValidation
     }
 
     /**
-     * Validamos el largo del ID interno
-     * @param  string
+     * @param  string $value
      * @return boolean
      */
     public function validateInternalIdLength($value)

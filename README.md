@@ -1,223 +1,290 @@
 # smsmasivos-api-client
 
-Librería para el uso de la API de SMS masivos Argentina
+Libreria para el uso de la API de SMS masivos Argentina
 
-Esta librería cuenta con el funcionamiento básico de la API de acuerdo con la documentación de [SMS masivos](https://smsmasivos.com.ar).
+Esta libreria cuenta con el funcionamiento basico de la API de acuerdo con la documentacion de [SMS masivos](https://smsmasivos.com.ar).
 
-## Funciones de la libreria:
+## Funciones de la libreria
 
-__*Funciones que requieren autenticación.*__
-- Envío de SMS en tiempo real.
-- Envío de SMS en bloque.
-- Comprobación de mensajes enviados mediante bloque.
-- Recepción de mensajes.
+**Funciones que requieren autenticacion:**
+- Envio de SMS en tiempo real.
+- Envio de SMS en bloque.
+- Comprobacion de mensajes enviados mediante bloque.
+- Recepcion de mensajes.
 - Consulta de saldo (Cuentas prepago).
 - Consulta de vencimiento del paquete contratado (Cuentas prepago).
 - Consulta de cantidad de mensajes enviados en el mes.
 
-__*Funciones que no requieren autenticación.*__
+**Funciones que no requieren autenticacion:**
 - Consulta de la hora del servidor.
 
 ## Requerimientos
-- [PHP 5.2 o mayor](https://www.php.net/)
 
-## Ejemplos
+- [PHP 5.3.3 o mayor](https://www.php.net/)
+- Extensiones: `curl`, `mbstring`
+- [Composer](https://getcomposer.org/)
 
-### Registro de credenciales:
-Antes de comenzar a utilizar las funciones principales del paquete se tienen que registrar las credenciales que SMS masivos les proporciona. Para realizar esto tiene que llamar a la clase *"SmsmasivosCredentials"* y luego al método estático *"setUserAndPassword"* como se muestra a continuación.
+## Instalacion
 
-```php
-<?php
-
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
-
-SmsmasivosCredentials::setUserAndPassword("DEMO500", "DEMO500");
-
+```bash
+composer require cmercado93/smsmasivos-api-client
 ```
 
-### Envió de SMS en tiempo real:
-Esta función te permite enviar SMS en tiempo real.
+## Uso
+
+### Registro de credenciales
+
+Antes de utilizar las funciones principales se tienen que registrar las credenciales. Se soportan dos metodos de autenticacion:
 
 ```php
 <?php
 
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
+use Cmercado93\SmsmasivosApi\Credentials;
+use Cmercado93\SmsmasivosApi\Smsmasivos;
+
+// Opcion A: APIKEY (recomendada)
+Credentials::setApiKey('MI_API_KEY');
+
+// Opcion B: usuario/clave
+Credentials::setUserAndPassword('DEMO500', 'DEMO500');
+```
+
+### Envio de SMS en tiempo real
+
+```php
+<?php
+
+use Cmercado93\SmsmasivosApi\Credentials;
+use Cmercado93\SmsmasivosApi\Smsmasivos;
 
 try {
-    // Ingresamos los datos de autenticación.
-    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
+    Credentials::setApiKey('MI_API_KEY');
 
-    // Enviamos un nuevo mensaje.
     Smsmasivos::sendMessage('1234567890', 'Mensaje a enviar', array(
         'test' => true,
         'internal_id' => 'Ab123',
         'send_date' => new DateTime('NOW'),
-        'html' => '<p>Texto en <b>HTML</b></p>'
+        'html' => '<p>Texto en <b>HTML</b></p>',
     ));
-} catch (Exception $e) {
+} catch (\Cmercado93\SmsmasivosApi\Exceptions\SmsmasivosException $e) {
     echo 'code: ' . $e->getCode() . PHP_EOL;
     echo 'msg: ' . $e->getMessage() . PHP_EOL;
-
-    if (method_exists($e, 'getExtraData')) {
-        print_r($e->getExtraData());
-    }
+    print_r($e->getExtraData());
 }
-
 ```
 
-### Envío de mensajes en bloque:
-Esta función te permite enviar múltiples SMS en una sola peticion.
+### Envio de mensajes en bloque
 
 ```php
 <?php
 
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
+use Cmercado93\SmsmasivosApi\Credentials;
+use Cmercado93\SmsmasivosApi\Smsmasivos;
 
 try {
-    // Ingresamos los datos de autenticación.
-    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
+    Credentials::setApiKey('MI_API_KEY');
 
-    $data = array();
-
-    $data['configs'] = array(
-        'is_test' => true, // opcional
+    $data = array(
+        'configs' => array(
+            'test' => true,                  // opcional
+            'field_separator' => 'tab',      // opcional: 'tab' o 'comma' (default)
+        ),
+        'messages' => array(
+            array(
+                'message' => 'texto 1',
+                'phone_number' => '1234567890',
+                'internal_id' => 'Ab123',    // opcional
+            ),
+            array(
+                'message' => 'texto 2',
+                'phone_number' => '1234567891',
+            ),
+        ),
     );
 
-    $data['messages'] = array(
-        array(
-            'message' => 'texto 1',
-            'phone_number' => '1234567890',
-            'internal_id' => 'Ab123', // opcional
-        ),
-        array(
-            'message' => 'texto 2',
-            'phone_number' => '1234567891',
-        ),
-    );
-
-    // Enviamos el bloque de mensajes.
     Smsmasivos::sendMessagesInBlock($data);
-} catch (Exception $e) {
+} catch (\Cmercado93\SmsmasivosApi\Exceptions\SmsmasivosException $e) {
     echo 'code: ' . $e->getCode() . PHP_EOL;
     echo 'msg: ' . $e->getMessage() . PHP_EOL;
-
-    if (method_exists($e, 'getExtraData')) {
-        print_r($e->getExtraData());
-    }
+    print_r($e->getExtraData());
 }
-
 ```
 
-### Verificación de bloque de mensajes enviados.
-Con esta función podes verificar si un bloque de mensajes fue enviado.
+### Verificacion de bloque de mensajes enviados
 
 ```php
 <?php
 
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
+use Cmercado93\SmsmasivosApi\Credentials;
+use Cmercado93\SmsmasivosApi\Smsmasivos;
 
 try {
-    // Ingresamos los datos de autenticación.
-    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
+    Credentials::setApiKey('MI_API_KEY');
 
-    /****************************************************************
-    Verificamos el estado de un mensaje en particular y lo marcamos como leído.
-     ****************************************************************/
-
-    // Enviamos el bloque de mensajes.
+    // Por ID interno
     $res = Smsmasivos::checkMessageBlockSent('Ab123', 'internal_id', array(
         'mark_as_read' => 1,
     ));
-
-    if ($res && count($res)) {
-        if ($res[0]['sent']) {
-            echo 'El mensaje "' . $res[0]['internal_id'] . '" fue enviado.' . PHP_EOL;
-        } else {
-            echo 'El mensaje "' . $res[0]['internal_id'] . '" no fue enviado por esta razón: ' . $res[0]['error'] . PHP_EOL;
-        }
-    } else {
-        echo 'No se encontraron datos.' . PHP_EOL;
-    }
-
-    /****************************************************************
-    Verificamos si se enviaron los mensajes de un fecha particular.
-     ****************************************************************/
-
-    $date = new DateTime('NOW');
-    $res = Smsmasivos::checkMessageBlockSent($date, 'date');
 
     if ($res && count($res)) {
         foreach ($res as $m) {
             if ($m['sent']) {
                 echo 'El mensaje "' . $m['internal_id'] . '" fue enviado.' . PHP_EOL;
             } else {
-                echo 'El mensaje "' . $m['internal_id'] . '" no fue enviado por esta razón: ' . $m['error'] . PHP_EOL;
+                echo 'El mensaje "' . $m['internal_id'] . '" no fue enviado: ' . $m['error'] . PHP_EOL;
             }
         }
     } else {
         echo 'No se encontraron datos.' . PHP_EOL;
     }
-} catch (Exception $e) {
+
+    // Por fecha
+    $date = new DateTime('NOW');
+    $res = Smsmasivos::checkMessageBlockSent($date, 'date');
+} catch (\Cmercado93\SmsmasivosApi\Exceptions\SmsmasivosException $e) {
     echo 'code: ' . $e->getCode() . PHP_EOL;
     echo 'msg: ' . $e->getMessage() . PHP_EOL;
-
-    if (method_exists($e, 'getExtraData')) {
-        print_r($e->getExtraData());
-    }
+    print_r($e->getExtraData());
 }
-
-
 ```
 
-### Recibimos las respuestas a los mensajes que enviamos
+### Recepcion de mensajes
 
 ```php
 <?php
 
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/SmsmasivosCredentials.php';
-require dirname(__FILE__) . '/cmercado93/smsmasivos-api-client/src/Smsmasivos.php';
+use Cmercado93\SmsmasivosApi\Credentials;
+use Cmercado93\SmsmasivosApi\Smsmasivos;
 
 try {
-    // Ingresamos los datos de autenticación.
-    SmsmasivosCredentials::setUserAndPassword('DEMO500', 'DEMO500');
+    Credentials::setApiKey('MI_API_KEY');
 
-    /*
-    Recuperamos las respuesta de un numero en particular y lo marcamos como leido
-     */
-
-    // configuraciones opcionales
     $configs = array(
-        'phone_number' => '1234567890',
-        'mark_as_read' => true,
+        'phone_number' => '1234567890',     // opcional: filtrar por numero
+        'mark_as_read' => true,             // opcional
+        'only_unread' => true,              // opcional
+        'include_internal_id' => true,      // opcional (default: true)
+        'format' => 'text',                 // opcional: 'text' (default) o 'excel'
     );
 
     $res = Smsmasivos::receiveMessages($configs);
 
-    if (count($res)) {
-        foreach ($res as $t) {
-            echo 'Enviado por: ' . $t['phone_number'] . PHP_EOL;
-            echo 'Mensaje: ' . $t['message'] . PHP_EOL;
-            echo 'Fecha de la respuesta: ' . $t['date']->format('d-m-Y H:i:s') . PHP_EOL;
-            echo PHP_EOL;
-        }
-    } else {
-        echo 'No se encontraron datos' . PHP_EOL;
+    foreach ($res as $t) {
+        echo 'Enviado por: ' . $t['phone_number'] . PHP_EOL;
+        echo 'Mensaje: ' . $t['message'] . PHP_EOL;
+        echo 'Fecha: ' . $t['date']->format('d-m-Y H:i:s') . PHP_EOL;
     }
-} catch (Exception $e) {
+} catch (\Cmercado93\SmsmasivosApi\Exceptions\SmsmasivosException $e) {
     echo 'code: ' . $e->getCode() . PHP_EOL;
     echo 'msg: ' . $e->getMessage() . PHP_EOL;
-
-    if (method_exists($e, 'getExtraData')) {
-        print_r($e->getExtraData());
-    }
+    print_r($e->getExtraData());
 }
-
 ```
 
-### Licencia
-Distribuido bajo la licencia MIT. Vea `LICENSE.md` para más información.
+### Consultas de cuenta
 
-_Este software y sus desarrolladores no tienen ninguna relación con [SMS masivos](https://smsmasivos.com.ar)._
+```php
+<?php
+
+use Cmercado93\SmsmasivosApi\Credentials;
+use Cmercado93\SmsmasivosApi\Smsmasivos;
+
+Credentials::setApiKey('MI_API_KEY');
+
+// Saldo disponible (prepago)
+$saldo = Smsmasivos::getBalance();
+
+// Vencimiento del paquete (prepago)
+$vencimiento = Smsmasivos::getPackageExpiration();
+
+// Mensajes enviados en el mes (plan abierto)
+$enviados = Smsmasivos::getNumberMessagesSent();
+
+// Fecha del servidor (no requiere autenticacion)
+$fecha = Smsmasivos::getCurrentDateServer();
+```
+
+## Implementacion HTTP personalizada
+
+Se puede reemplazar la implementacion HTTP por defecto (cURL) con una propia:
+
+```php
+<?php
+
+use Cmercado93\SmsmasivosApi\Smsmasivos;
+use Cmercado93\SmsmasivosApi\Http\HttpRequestInterface;
+
+class MiHttpClient implements HttpRequestInterface
+{
+    public function get($path, $params = array()) { /* ... */ }
+    public function post($path, $params = array()) { /* ... */ }
+}
+
+Smsmasivos::setHttpRequest(new MiHttpClient());
+```
+
+## Excepciones
+
+Todas las operaciones tiran excepciones en caso de error:
+
+| Excepcion | Codigo | Cuando |
+|---|---|---|
+| `CredentialsException` | 100 | No se configuraron credenciales |
+| `ValidationException` | 101 | Error de validacion en los datos de entrada |
+| `ApiResponseException` | 102 | Error en la respuesta de la API o HTTP != 200 |
+
+Todas extienden de `SmsmasivosException`, que a su vez extiende de `\Exception`.
+
+```php
+use Cmercado93\SmsmasivosApi\Exceptions\SmsmasivosException;
+use Cmercado93\SmsmasivosApi\Exceptions\ValidationException;
+
+try {
+    Smsmasivos::sendMessage('123', 'Hello');
+} catch (ValidationException $e) {
+    // Error de validacion
+    print_r($e->getExtraData());
+} catch (SmsmasivosException $e) {
+    // Cualquier otro error del SDK
+    echo $e->getMessage();
+}
+```
+
+## Codigos de respuesta de la API
+
+La clase `ResponseCode` contiene constantes para todos los codigos:
+
+```php
+use Cmercado93\SmsmasivosApi\Common\ResponseCode;
+
+ResponseCode::OK;                    //  0  - Mensaje entregado
+ResponseCode::TEST_OK;               //  1  - Simulacro OK
+ResponseCode::LANDLINE;              // -1  - Telefono fijo
+ResponseCode::TOO_MANY_FAILURES;     // -2  - Muchos fallos previos
+ResponseCode::UNSUBSCRIBED;          // -3  - Envio palabra BAJA
+ResponseCode::DUPLICATE_MESSAGE;     // -4  - Mensaje identico reciente
+ResponseCode::SPAM;                  // -5  - Posible SPAM
+ResponseCode::MESSAGE_TOO_LONG;      // -6  - Texto muy largo
+ResponseCode::INVALID_NUMBER_LENGTH; // -7  - Numero debe tener 10 digitos
+ResponseCode::INVALID_NUMBER_CHARS;  // -8  - Caracteres invalidos en numero
+ResponseCode::INVALID_AREA_CODE;     // -9  - Caracteristica invalida
+ResponseCode::CARRIER_REJECTED;      // -10 - Rechazado por telefonica
+ResponseCode::INVALID_MESSAGE_CHARS; // -11 - Caracteres invalidos en texto
+ResponseCode::INVALID_NUMBER_PREFIX; // -12 - Numero debe comenzar con 1, 2 o 3
+ResponseCode::DO_NOT_CALL_LIST;      // -14 - Registro "No Llame"
+ResponseCode::OTHER;                 // -99 - Otro
+```
+
+## Tests
+
+```bash
+composer install
+vendor/bin/phpunit
+vendor/bin/phpunit --testdox
+```
+
+## Licencia
+
+Distribuido bajo la licencia MIT. Vea `LICENSE.md` para mas informacion.
+
+_Este software y sus desarrolladores no tienen ninguna relacion con [SMS masivos](https://smsmasivos.com.ar)._

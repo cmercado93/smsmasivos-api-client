@@ -1,38 +1,42 @@
 <?php
 
-require_once dirname(__FILE__) . '/Classes/SmsmasivosSendMessage.php';
-require_once dirname(__FILE__) . '/Classes/SmsmasivosSendMessagesInBlock.php';
-require_once dirname(__FILE__) . '/Classes/SmsmasivosCheckMessageBlockSent.php';
-require_once dirname(__FILE__) . '/Classes/SmsmasivosGetBalance.php';
-require_once dirname(__FILE__) . '/Classes/SmsmasivosGetCurrentDateServer.php';
-require_once dirname(__FILE__) . '/Classes/SmsmasivosGetPackageExpiration.php';
-require_once dirname(__FILE__) . '/Classes/SmsmasivosGetNumberMessagesSent.php';
-require_once dirname(__FILE__) . '/Classes/SmsmasivosReceiveMessages.php';
+namespace Cmercado93\SmsmasivosApi;
+
+use Cmercado93\SmsmasivosApi\Http\HttpRequestInterface;
+use Cmercado93\SmsmasivosApi\Operations;
 
 class Smsmasivos
 {
+    protected static $httpRequest = null;
+
     /**
-     * Enviamos un mensaje directo
-     * @param  string $phoneNumber Numero telefónico del destinatario
-     * @param  string $message     Mensaje a enviar
-     * @param  array  $configs     Configuraciones adicionales para el envío
+     * @param HttpRequestInterface|null $http
+     */
+    public static function setHttpRequest(HttpRequestInterface $http = null)
+    {
+        self::$httpRequest = $http;
+    }
+
+    /**
+     * @param  string $phoneNumber
+     * @param  string $message
+     * @param  array  $configs
      * @return bool
      */
     public static function sendMessage($phoneNumber, $message, array $configs = array())
     {
-        $i = new SmsmasivosSendMessage;
+        $i = new Operations\SendMessage(self::$httpRequest);
 
         return $i->sendMessage($phoneNumber, $message, $configs);
     }
 
     /**
-     * Enviamos un bloque de mensajes
      * @param  array $data
      * @return bool
      */
     public static function sendMessagesInBlock(array $data)
     {
-        $i = new SmsmasivosSendMessagesInBlock;
+        $i = new Operations\SendMessagesInBlock(self::$httpRequest);
 
         $data['configs'] = isset($data['configs']) ? $data['configs'] : array();
         $data['messages'] = isset($data['messages']) ? $data['messages'] : array();
@@ -44,15 +48,14 @@ class Smsmasivos
     }
 
     /**
-     * Compruebo el estado actual del bloque de mensajes enviados.
-     * @param  string $filter
      * @param  string $value
+     * @param  string $filter
      * @param  array  $configs
-     * @return bool
+     * @return false|array
      */
     public static function checkMessageBlockSent($value, $filter = 'internal_id', array $configs = array())
     {
-        $i = new SmsmasivosCheckMessageBlockSent();
+        $i = new Operations\CheckMessageBlockSent(self::$httpRequest);
 
         $i->setFilter($filter, $value);
 
@@ -62,13 +65,12 @@ class Smsmasivos
     }
 
     /**
-     * [receiveMessages description]
-     * @param  array  $configs [description]
-     * @return bool
+     * @param  array  $configs
+     * @return array
      */
     public static function receiveMessages(array $configs = array())
     {
-        $i = new SmsmasivosReceiveMessages;
+        $i = new Operations\ReceiveMessages(self::$httpRequest);
 
         $i->setConfigs($configs);
 
@@ -76,45 +78,41 @@ class Smsmasivos
     }
 
     /**
-     * Se usa en los planes prepagos para saber la cantidad de SMS que aún podemos enviar connuestro usuario.
-     * @return int|boolean
+     * @return int
      */
     public static function getBalance()
     {
-        $i = new SmsmasivosGetBalance;
+        $i = new Operations\GetBalance(self::$httpRequest);
 
         return $i->get();
     }
 
     /**
-     * Se usa en los planes prepagos para saber la fecha de vencimiento del paquete contratado.
-     * @return DateTime|boolean
+     * @return \DateTime|false
      */
     public static function getPackageExpiration()
     {
-        $i = new SmsmasivosGetPackageExpiration;
+        $i = new Operations\GetPackageExpiration(self::$httpRequest);
 
         return $i->get();
     }
 
     /**
-     * Se usa en los planes abiertos para saber la cantidad de SMS que se han enviado en el mes
-     * @return int|boolean
+     * @return int|false
      */
     public static function getNumberMessagesSent()
     {
-        $i = new SmsmasivosGetNumberMessagesSent;
+        $i = new Operations\GetNumberMessagesSent(self::$httpRequest);
 
         return $i->get();
     }
 
     /**
-     * Se usa para consultar la fecha actual del servidor.
-     * @return DateTime|boolean
+     * @return \DateTime|false
      */
     public static function getCurrentDateServer()
     {
-        $i = new SmsmasivosGetCurrentDateServer;
+        $i = new Operations\GetCurrentDateServer(self::$httpRequest);
 
         return $i->get();
     }
